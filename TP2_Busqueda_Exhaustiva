@@ -1,0 +1,51 @@
+import random
+
+# Función simulada que representa la búsqueda de la perforación roscada en el block
+# En un escenario real, esta función estaría conectada a los sensores o cámaras del robot.
+def buscar(x, y, z):
+    # Suponemos que la posición exacta del agujero está en (3, -2, 2) por ejemplo
+    actual_x = 1
+    actual_y = -1
+    actual_z = 3
+    
+    # Si el robot encuentra la posición exacta, devuelve True
+    if x == actual_x and y == actual_y and z == actual_z:
+        return True
+    else:
+        return False
+
+# Función de búsqueda exhaustiva
+def busqueda_exhaustiva(x_min, x_max, y_min, y_max, z_min, z_max, step_size_x, step_size_y, step_size_z):
+    # Recorrer todos los valores de X, Y y Z dentro de los rangos dados
+    for x in range(x_min, x_max + 1, step_size_x):
+        for y in range(y_min, y_max + 1, step_size_y):
+            for z in range(z_min, z_max + 1, step_size_z):
+                print(f"Probando posición X: {x}, Y: {y}, Z: {z}")
+                
+                # Si encuentra la perforación, devuelve la posición encontrada
+                if buscar(x, y, z):
+                    print(f"¡Perforación encontrada en X: {x}, Y: {y}, Z: {z}")
+                    return x, y, z
+
+    print("No se encontró la perforación en el rango dado.")
+    return None
+
+# Parámetros de la búsqueda
+x_min = -5  # Desplazamiento mínimo en X
+x_max = 5   # Desplazamiento máximo en X
+y_min = -5  # Desplazamiento mínimo en Y
+y_max = 5   # Desplazamiento máximo en Y
+z_min = -5  # Rotación mínima en Z (en grados)
+z_max = 5   # Rotación máxima en Z (en grados)
+
+step_size_x = 1  # Paso de búsqueda en X (en mm)
+step_size_y = 1  # Paso de búsqueda en Y (en mm)
+step_size_z = 1  # Paso de búsqueda en Z (en grados)
+
+# Ejecutar la búsqueda exhaustiva
+resultado = busqueda_exhaustiva(x_min, x_max, y_min, y_max, z_min, z_max, step_size_x, step_size_y, step_size_z)
+
+if resultado:
+    print(f"Solución encontrada en la posición: {resultado}")
+else:
+    print("La búsqueda no tuvo éxito.")
