@@ -1,0 +1,60 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Función para crear una red de Hopfield
+class HopfieldNetwork:
+    def __init__(self, size):
+        self.size = size
+        self.weights = np.zeros((size, size))
+
+    # Entrenamiento usando la regla de Hebb
+    def train(self, patterns):
+        for pattern in patterns:
+            pattern = pattern.reshape(self.size)
+            self.weights += np.outer(pattern, pattern)
+        np.fill_diagonal(self.weights, 0)
+
+    # Función de signo para actualizar el estado
+    def sign(self, x):
+        return np.where(x >= 0, 1, -1)
+
+    # Recuperar el patrón almacenado
+    def recall(self, pattern, steps=5):
+        for _ in range(steps):
+            pattern = self.sign(self.weights @ pattern)
+        return pattern
+
+# Función para mostrar las imágenes
+def plot_image(image, title):
+    plt.imshow(image.reshape((10, 10)), cmap='binary')
+    plt.title(title)
+    plt.show()
+
+# Crear patrones (imágenes)
+pattern_A = np.array([1, 1, 1, -1, -1, 1, 1, 1, -1, -1,
+                      1, -1, -1, -1, -1, 1, 1, 1, 1, -1,
+                      1, 1, 1, -1, -1, 1, -1, -1, -1, -1,
+                      1, -1, -1, 1, -1, 1, -1, 1, -1, 1,
+                      1, 1, 1, -1, -1, 1, 1, 1, 1, -1,
+                      -1, -1, -1, 1, -1, -1, -1, -1, -1, 1,
+                      1, 1, -1, -1, 1, 1, 1, 1, -1, 1,
+                      1, -1, -1, 1, -1, 1, -1, -1, -1, -1,
+                      1, 1, 1, -1, -1, 1, 1, 1, 1, 1])
+
+# Crear un patrón con ruido
+noisy_pattern = np.copy(pattern_A)
+noisy_pattern[10] = -1  # Introducir ruido en el patrón
+
+# Inicializar la red de Hopfield
+hopfield_net = HopfieldNetwork(size=pattern_A.size)
+
+# Entrenar la red con el patrón original
+hopfield_net.train([pattern_A])
+
+# Recuperar el patrón corregido a partir de la imagen con ruido
+recovered_pattern = hopfield_net.recall(noisy_pattern)
+
+# Mostrar los resultados
+plot_image(pattern_A, "Patrón Original")
+plot_image(noisy_pattern, "Patrón con Ruido")
+plot_image(recovered_pattern, "Patrón Recuperado")
