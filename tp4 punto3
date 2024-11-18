@@ -1,13 +1,20 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import requests
+from io import BytesIO
 
-# Crear una imagen sencilla con un círculo
-width, height = 500, 500
-image = np.zeros((width, height, 3), dtype=np.uint8)
+# Función para cargar la imagen desde una URL
+def load_image_from_url(url):
+    response = requests.get(url)
+    image = np.array(bytearray(response.content), dtype=np.uint8)
+    return cv2.imdecode(image, cv2.IMREAD_COLOR)
 
-# Dibujar un círculo en la imagen
-cv2.circle(image, (250, 250), 100, (255, 255, 255), 2)
+# URL de la imagen
+image_url = "https://images.unsplash.com/photo-1444464666168-49d633b86797?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8YmlyZHxlbnwwfHwwfHx8Mg%3D%3D"  # Reemplaza con la URL deseada
+
+# Cargar la imagen desde la URL
+image = load_image_from_url(image_url)
 
 # Convertir a escala de grises
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -23,8 +30,8 @@ circles = cv2.HoughCircles(
     minDist=50, 
     param1=50, 
     param2=30, 
-    minRadius=90, 
-    maxRadius=110
+    minRadius=10, 
+    maxRadius=100
 )
 
 # Dibujar los círculos detectados
@@ -41,6 +48,11 @@ plt.figure(figsize=(10, 5))
 plt.subplot(1, 2, 1)
 plt.title("Imagen Original")
 plt.imshow(gray, cmap='gray')
+
+plt.subplot(1, 2, 2)
+plt.title("Círculos Detectados")
+plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+plt.show()
 
 plt.subplot(1, 2, 2)
 plt.title("Círculos Detectados")
