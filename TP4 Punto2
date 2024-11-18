@@ -1,0 +1,49 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+import requests
+from io import BytesIO
+
+# Función para cargar la imagen desde una URL
+def load_image_from_url(url):
+    response = requests.get(url)
+    image = np.array(bytearray(response.content), dtype=np.uint8)
+    return cv2.imdecode(image, cv2.IMREAD_COLOR)
+
+# URL de la imagen
+image_url = "https://images.unsplash.com/photo-1444464666168-49d633b86797?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8YmlyZHxlbnwwfHwwfHx8Mg%3D%3D"  # Reemplaza con la URL deseada
+
+# Cargar la imagen desde la URL
+image = load_image_from_url(image_url)
+
+# Convertir a escala de grises
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+# Aplicar detección de bordes (Canny)
+edges = cv2.Canny(gray, 50, 150, apertureSize=3)
+
+# Detectar líneas usando la Transformada de Hough
+lines = cv2.HoughLines(edges, rho=1, theta=np.pi/180, threshold=100)
+
+# Dibujar las líneas detectadas sobre la imagen original
+if lines is not None:
+    for rho, theta in lines[:, 0]:
+        # Convertir (ρ, θ) a coordenadas de dos puntos
+        a, b = np.cos(theta), np.sin(theta)
+        x0, y0 = a * rho, b * rho
+        x1 = int(x0 + 1000 * (-b))
+        y1 = int(y0 + 1000 * a)
+        x2 = int(x0 - 1000 * (-b))
+        y2 = int(y0 - 1000 * a)
+        cv2.line(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+# Mostrar resultados
+plt.figure(figsize=(10, 5))
+plt.subplot(1, 2, 1)
+plt.title("Bordes Detectados")
+plt.imshow(edges, cmap='gray')
+
+plt.subplot(1, 2, 2)
+plt.title("Líneas Detectadas")
+plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+plt.show()
