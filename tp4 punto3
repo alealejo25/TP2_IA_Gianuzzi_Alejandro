@@ -1,0 +1,48 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Crear una imagen sencilla con un círculo
+width, height = 500, 500
+image = np.zeros((width, height, 3), dtype=np.uint8)
+
+# Dibujar un círculo en la imagen
+cv2.circle(image, (250, 250), 100, (255, 255, 255), 2)
+
+# Convertir a escala de grises
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+# Aplicar suavizado para reducir ruido
+blurred = cv2.GaussianBlur(gray, (9, 9), 2)
+
+# Detectar círculos usando la Transformada de Hough
+circles = cv2.HoughCircles(
+    blurred, 
+    cv2.HOUGH_GRADIENT, 
+    dp=1.2, 
+    minDist=50, 
+    param1=50, 
+    param2=30, 
+    minRadius=90, 
+    maxRadius=110
+)
+
+# Dibujar los círculos detectados
+if circles is not None:
+    circles = np.uint16(np.around(circles))
+    for circle in circles[0, :]:
+        center = (circle[0], circle[1])  # Coordenadas del centro
+        radius = circle[2]              # Radio del círculo
+        cv2.circle(image, center, radius, (0, 255, 0), 2)  # Círculo
+        cv2.circle(image, center, 3, (0, 0, 255), 3)       # Centro
+
+# Mostrar resultados
+plt.figure(figsize=(10, 5))
+plt.subplot(1, 2, 1)
+plt.title("Imagen Original")
+plt.imshow(gray, cmap='gray')
+
+plt.subplot(1, 2, 2)
+plt.title("Círculos Detectados")
+plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+plt.show()
